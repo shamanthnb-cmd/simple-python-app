@@ -1,31 +1,25 @@
 pipeline {
     agent any
 
-    environment {
-        VENV = "venv"
-    }
-
     stages {
 
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/your-username/python-app.git'
+                checkout scm
             }
         }
 
-        stage('Setup Python Environment') {
+        stage('Install Dependencies') {
             steps {
                 sh '''
                 python3 -m venv venv
                 . venv/bin/activate
-                pip install --upgrade pip
                 pip install -r requirements.txt
                 '''
             }
         }
 
-        stage('Run Tests (CI)') {
+        stage('Test (CI)') {
             steps {
                 sh '''
                 . venv/bin/activate
@@ -34,23 +28,13 @@ pipeline {
             }
         }
 
-        stage('Deploy (CD)') {
+        stage('Run App (CD)') {
             steps {
-                echo "Deploying application..."
                 sh '''
                 . venv/bin/activate
                 python app.py
                 '''
             }
-        }
-    }
-
-    post {
-        success {
-            echo "CI/CD Pipeline executed successfully 🚀"
-        }
-        failure {
-            echo "Pipeline failed ❌"
         }
     }
 }
